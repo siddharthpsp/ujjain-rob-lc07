@@ -222,15 +222,10 @@
 <div id="reportOverlay"></div>
 
 <script>
-  // ========= CONFIG — REPLACE =========
-  const BIN_ID     = "69ddc05e36566621a8aec3f1";
-  const MASTER_KEY = "$2a$10$w0bQZqKoLNQfO0OtCV2VU.YS.GvFy/IVXBE5SyjpD5RtV3xn/NCdS";
-  // ====================================
-
+  // ========= CONFIG — LOCAL STORAGE =========
   const PROJECT = "Ujjain ROB LC-07";
   const CLIENT  = "ABM INFRA";
-  const API = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-  const HEADERS = { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY };
+  const STORAGE_KEY = "ujjain_rob_lc07_state";
   const POLL_MS = 5000;
 
   // A1 = Lalpur, 10 piles. A2 = Dewas, 10 piles. P1–P11 = 5 piles each.
@@ -255,16 +250,13 @@
 
   async function pull() {
     try {
-      const r = await fetch(API + '/latest', { headers: HEADERS });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      const j = await r.json();
-      const rec = j.record || {};
-      if (rec.piles) state = rec;
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) state = JSON.parse(saved);
       else state = { piles: {}, updatedAt: null, updatedBy: null };
       setSync('ok', '● Synced');
       render();
     } catch(e) {
-      setSync('err', '⚠ Offline — check config');
+      setSync('err', '⚠ Error loading');
       render();
     }
   }
@@ -274,8 +266,7 @@
     busy = true;
     setSync('loading', '⟳ Saving...');
     try {
-      const r = await fetch(API, { method: 'PUT', headers: HEADERS, body: JSON.stringify(state) });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       setSync('ok', '● Synced');
     } catch(e) {
       setSync('err', '⚠ Save failed');
