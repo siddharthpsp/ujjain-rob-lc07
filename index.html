@@ -66,6 +66,46 @@
   </div>
   
   <div class="support">
+    <div class="support-title">Pier P4 (5 piles)</div>
+    <div class="piles gPier" id="pierP4"></div>
+  </div>
+  
+  <div class="support">
+    <div class="support-title">Pier P5 (5 piles)</div>
+    <div class="piles gPier" id="pierP5"></div>
+  </div>
+  
+  <div class="support">
+    <div class="support-title">Pier P6 (5 piles)</div>
+    <div class="piles gPier" id="pierP6"></div>
+  </div>
+  
+  <div class="support">
+    <div class="support-title">Pier P7 (5 piles)</div>
+    <div class="piles gPier" id="pierP7"></div>
+  </div>
+  
+  <div class="support">
+    <div class="support-title">Pier P8 (5 piles)</div>
+    <div class="piles gPier" id="pierP8"></div>
+  </div>
+  
+  <div class="support">
+    <div class="support-title">Pier P9 (5 piles)</div>
+    <div class="piles gPier" id="pierP9"></div>
+  </div>
+  
+  <div class="support">
+    <div class="support-title">Pier P10 (5 piles)</div>
+    <div class="piles gPier" id="pierP10"></div>
+  </div>
+  
+  <div class="support">
+    <div class="support-title">Pier P11 (5 piles)</div>
+    <div class="piles gPier" id="pierP11"></div>
+  </div>
+  
+  <div class="support">
     <div class="support-title ab">Abutment A2 (10 piles)</div>
     <div class="piles gAb" id="abA2"></div>
   </div>
@@ -74,14 +114,25 @@
     const SUPABASE_URL = 'https://bnmgfbmjnzedhoenqodk.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJubWdmYm1qbnplZGhvZW5xb2RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MDMwMDQsImV4cCI6MjA5NDA3OTAwNH0.M6nOYvSOUf9aA7fooKqOwuus0xmsu1rU2YlttBSJz-4';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
     const pileData = {
       'A1': Array.from({length: 10}, (_, i) => `A1-${i+1}`),
       'P1': Array.from({length: 5}, (_, i) => `P1-${i+1}`),
       'P2': Array.from({length: 5}, (_, i) => `P2-${i+1}`),
       'P3': Array.from({length: 5}, (_, i) => `P3-${i+1}`),
+      'P4': Array.from({length: 5}, (_, i) => `P4-${i+1}`),
+      'P5': Array.from({length: 5}, (_, i) => `P5-${i+1}`),
+      'P6': Array.from({length: 5}, (_, i) => `P6-${i+1}`),
+      'P7': Array.from({length: 5}, (_, i) => `P7-${i+1}`),
+      'P8': Array.from({length: 5}, (_, i) => `P8-${i+1}`),
+      'P9': Array.from({length: 5}, (_, i) => `P9-${i+1}`),
+      'P10': Array.from({length: 5}, (_, i) => `P10-${i+1}`),
+      'P11': Array.from({length: 5}, (_, i) => `P11-${i+1}`),
       'A2': Array.from({length: 10}, (_, i) => `A2-${i+1}`),
     };
+    
     let pileStatus = {};
+    
     async function init() {
       try {
         const { data } = await supabase.from('ujjain_piles').select('*').limit(1);
@@ -94,6 +145,7 @@
       }
       renderPiles();
     }
+    
     function renderPiles() {
       Object.entries(pileData).forEach(([section, piles]) => {
         const id = section.startsWith('P') ? `pier${section}` : `ab${section}`;
@@ -109,16 +161,19 @@
       });
       updateStats();
     }
+    
     function togglePile(pile) {
       pileStatus[pile] = !pileStatus[pile];
       supabase.from('ujjain_piles').upsert({ id: 1, status: pileStatus }).catch(e => console.error(e));
       renderPiles();
     }
+    
     function updateStats() {
       const completed = Object.values(pileStatus).filter(Boolean).length;
       document.getElementById('completed').textContent = completed;
       document.getElementById('pending').textContent = 75 - completed;
     }
+    
     init();
   </script>
 </body>
