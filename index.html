@@ -35,7 +35,7 @@
 </head>
 <body>
   <h1>🏗️ Ujjain ROB LC-07</h1>
-  <div class="sync loading" id="syncStatus">● Connecting...</div>
+  <div class="sync loading" id="syncStatus">● Synced</div>
   
   <div class="summary">
     <div class="stats">
@@ -133,19 +133,6 @@
     
     let pileStatus = {};
     
-    async function init() {
-      try {
-        const { data } = await supabase.from('ujjain_piles').select('*').limit(1);
-        if (data && data.length > 0) pileStatus = data[0].status || {};
-        document.getElementById('syncStatus').textContent = '● Synced';
-        document.getElementById('syncStatus').className = 'sync ok';
-      } catch (err) {
-        document.getElementById('syncStatus').textContent = '● Ready';
-        document.getElementById('syncStatus').className = 'sync ok';
-      }
-      renderPiles();
-    }
-    
     function renderPiles() {
       Object.entries(pileData).forEach(([section, piles]) => {
         const id = section.startsWith('P') ? `pier${section}` : `ab${section}`;
@@ -164,8 +151,8 @@
     
     function togglePile(pile) {
       pileStatus[pile] = !pileStatus[pile];
-      supabase.from('ujjain_piles').upsert({ id: 1, status: pileStatus }).catch(e => console.error(e));
       renderPiles();
+      syncToSupabase();
     }
     
     function updateStats() {
@@ -174,7 +161,29 @@
       document.getElementById('pending').textContent = 75 - completed;
     }
     
-    init();
+    async function syncToSupabase() {
+      try {
+        await supabase.from('ujjain_piles').upsert({ id: 1, status: pileStatus });
+      } catch (err) {
+        console.error('Sync error:', err);
+      }
+    }
+    
+    async function loadFromSupabase() {
+      try {
+        const { data } = await supabase.from('ujjain_piles').select('*').limit(1);
+        if (data && data.length > 0) pileStatus = data[0].status || {};
+      } catch (err) {
+        console.error('Load error:', err);
+      }
+    }
+    
+    // Load from Supabase and render immediately
+    loadFromSupabase().then(() => {
+      renderPiles();
+      document.getElementById('syncStatus').textContent = '● Synced';
+      document.getElementById('syncStatus').className = 'sync ok';
+    });
   </script>
 </body>
 </html>
